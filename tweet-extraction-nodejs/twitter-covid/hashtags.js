@@ -5,7 +5,7 @@ const hashtags = [
   'covid',
   'Stressed',
   'lockdown',
-  'Job loss',
+  'Jobloss',
   'Unemployed',
   'Broke',
 ];
