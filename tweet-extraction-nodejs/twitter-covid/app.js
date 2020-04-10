@@ -19,7 +19,7 @@ const query = qs.stringify({
 async function fetchNextResultsPage(nextResultsQueryString, access_token, iteration, {town, state, coord}, accumTweets) {
   console.log(`requesting iteration ${iteration}, town ${town}`);
   return await fetch(
-    `https://api.twitter.com/1.1/search/tweets.json?${nextResultsQueryString}`,
+    `https://api.twitter.com/1.1/search/tweets.json${nextResultsQueryString}`,
     {
       headers: {
         'Content-Type': 'application/json',
@@ -29,15 +29,15 @@ async function fetchNextResultsPage(nextResultsQueryString, access_token, iterat
     })
     .then(res => res.json())
     .then(async json => {
+      const tweetsSoFar = [
+        ...json.statuses.map(tweet => buildTweetObject(tweet, town, state, coord)),
+        ...accumTweets
+      ];
       if (iteration > 0 && json.search_metadata && json.search_metadata.next_results) {
-        const tweetsSoFar = [
-          ...json.statuses.map(
-            tweet => buildTweetObject(tweet, town, state, coord)),
-          ...accumTweets];
-        return await fetchNextResultsPage(json.search_metadata.next_results,
+        return await fetchNextResultsPage(`${json.search_metadata.next_results}&tweet_mode=extended`,
           access_token, iteration - 1, { town, state, coord }, tweetsSoFar);
       } else {
-        return accumTweets;
+        return tweetsSoFar;
       }
     });
 }
@@ -55,24 +55,29 @@ function getAccessToken() {
   }).then(res => res.json());
 }
 
-const filterRetweets = encodeURIComponent('-filter:retweets');
-const buildQuery = (coord) => `q=${hashtags.getHashtagQuery()}${filterRetweets}&${query}&geocode=${coord},10km`;
+const filterRetweets = encodeURIComponent(' AND -filter:retweets');
+const filterReplies = encodeURIComponent(' AND -filter:replies');
+const buildQuery = (coord) => `?q=${hashtags.getHashtagQuery()}${filterRetweets}${filterReplies}&${query}&geocode=${coord},10km`;
 
 getAccessToken()
-  .then(({ access_token }) =>
-    locations.forEach(async loc =>
-      await fetchNextResultsPage(buildQuery(loc.coord), access_token, 10, loc, [])
+  .then(async ({ access_token }) => {
+    let allTweets = [];
+    await Promise.all(locations.map(loc =>
+      fetchNextResultsPage(buildQuery(loc.coord), access_token, 10, loc, [])
         .then((accumTweets) =>
-          writeCSV(accumTweets, `${loc.town}_${loc.state}`)
-        ),
-    ),
-  );
+          allTweets = [...allTweets, ...accumTweets]
+          // writeCSV(accumTweets, `${loc.town}_${loc.state}`)
+        )
+      ));
+    console.log('WRITING CSV');
+    writeCSV(allTweets, `3`)
+  });
 
-function buildTweetObject({ user: { id: user_id, id_str: user_id_str, name: user_name, screen_name: user_screen_name, location: user_location }, full_text, id, id_str, created_at }, geo_town, geo_state, geo_coord) {
+function buildTweetObject({ user: { id: user_id, id_str: user_id_str, name: user_name, screen_name: user_screen_name, location: user_location }, text, full_text, id, id_str, created_at }, geo_town, geo_state, geo_coord) {
   return {
     id,
     id_str,
-    full_text,
+    full_text: full_text ? full_text : text,
     created_at,
     user_id,
     user_id_str,

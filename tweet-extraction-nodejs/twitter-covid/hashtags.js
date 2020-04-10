@@ -1,13 +1,9 @@
 const hashtags = [
+  'coronavirus',
   'coronavirusaus',
-  'pandemic',
-  'covid-19',
-  'covid',
-  'Stressed',
-  'lockdown',
-  'Jobloss',
-  'Unemployed',
-  'Broke',
+  'covid19',
+  'covid_19',
+  'covid'
 ];
 
 function getHashtagQuery() {
