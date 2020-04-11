@@ -13,11 +13,15 @@ const fields = [
   'user_location',
   'geo_town',
   'geo_state',
-  'geo_coord'
+  'geo_coord',
+  'neg',
+  'neu',
+  'pos',
+  'compound'
 ];
-const opts = { fields };
 
-function writeCSV(jsonData, filename) {
+function writeCSV(jsonData, filename, fieldsArr = fields) {
+  const opts = { fieldsArr };
   const csv = parse(jsonData, opts);
   writeFileSync(
     `./output/${filename}.csv`,

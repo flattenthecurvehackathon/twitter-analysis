@@ -63,7 +63,7 @@ const locations = [
   // { town: 'Canberra', state: 'ACT', coord: '-35.282001,149.128998' },
   // { town: 'Sunshine_Coast', state: 'QLD', coord: '-26.650000,153.066666' },
   // { town: 'Gold_Coast', state: 'QLD', coord: '-28.016666,153.399994' },
-
+  //
   { town: 'Melbourne', state: 'VIC', coord: '-37.840935,144.946457' },
   { town: 'Adelaide', state: 'SA', coord: '-34.921230,138.599503' },
   { town: 'Launceston', state: 'TAS', coord: '-41.429825,147.157135' },

@@ -4,6 +4,7 @@ const hashtags = require('./hashtags');
 const { writeCSV } = require('./csvWriter');
 const { locations } = require('./locations');
 const base64 = data => Buffer.from(data).toString('base64');
+const vader = require('vader-sentiment');
 
 const consumerKey = 'PokylTekMorM4cDpegEm4HEOJ';
 const consumerSecret = process.env.CONSUMER_SECRET;
@@ -63,14 +64,14 @@ getAccessToken()
   .then(async ({ access_token }) => {
     let allTweets = [];
     await Promise.all(locations.map(loc =>
-      fetchNextResultsPage(buildQuery(loc.coord), access_token, 10, loc, [])
+      fetchNextResultsPage(buildQuery(loc.coord), access_token, 15, loc, [])
         .then((accumTweets) =>
           allTweets = [...allTweets, ...accumTweets]
           // writeCSV(accumTweets, `${loc.town}_${loc.state}`)
         )
       ));
     console.log('WRITING CSV');
-    writeCSV(allTweets, `3`)
+    writeCSV(allTweets, `3-with-sentiment`)
   });
 
 function buildTweetObject({ user: { id: user_id, id_str: user_id_str, name: user_name, screen_name: user_screen_name, location: user_location }, text, full_text, id, id_str, created_at }, geo_town, geo_state, geo_coord) {
@@ -86,6 +87,7 @@ function buildTweetObject({ user: { id: user_id, id_str: user_id_str, name: user
     user_location,
     geo_town,
     geo_state,
-    geo_coord
+    geo_coord,
+    ...vader.SentimentIntensityAnalyzer.polarity_scores(full_text ? full_text : text)
   }
 }
