@@ -16,7 +16,7 @@ from datetime import datetime as dt
 import os
 from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
-plt.style.use("dark_background")
+plt.style.use("seaborn")
 
 
 class CallbackTimeHistory(K.callbacks.Callback):
@@ -53,7 +53,7 @@ def visualize_training(history, time_per_epoch):
     ax[1].set_xlabel('Time (in seconds)')
     ax[1].legend()
 
-    plt.title("Training History")
+    fig.suptitle("Training History", fontsize=14)
     plt.savefig(os.path.join(path_to_plots, "training.png"), dpi=300)
 
 

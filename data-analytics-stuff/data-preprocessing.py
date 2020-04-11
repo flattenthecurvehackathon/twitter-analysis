@@ -6,7 +6,7 @@ import numpy as np
 from textblob import TextBlob
 import matplotlib.pyplot as plt
 import re
-plt.style.use("dark_background")
+plt.style.use("seaborn")
 
 
 def clean_data(sentence):
@@ -70,12 +70,6 @@ if __name__ == '__main__':
 
     train = process_text(train)
     train.dropna(inplace=True)
-    train.to_csv(os.path.join(path_to_data, "train_processed.csv"), index=False)
-
-    test = process_text(test)
-    test.dropna(inplace=True)
-    test.to_csv(os.path.join(path_to_data, "test_processed.csv"), index=False)
-
     # data exploration
     fig, ax = plt.subplots()
     ax.pie([len(np.where(train["sentiment"] == "negative")[0]),
@@ -87,4 +81,11 @@ if __name__ == '__main__':
            , colors=["#5597E7", "#587196", "#6A59DC"])
     ax.set_title("Data Proportion")
     fig.savefig(os.path.join(path_to_plots, "sentiment_proportion.png"), dpi=300)
+
+    train.to_csv(os.path.join(path_to_data, "train_processed.csv"), index=False)
+
+    test = process_text(test)
+    test.dropna(inplace=True)
+    test.to_csv(os.path.join(path_to_data, "test_processed.csv"), index=False)
+
 
